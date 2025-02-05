@@ -1,7 +1,5 @@
-﻿using System;
-using System.Linq; // Biblioteca para usar funções como Average()
-using Newtonsoft.Json;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿using Newtonsoft.Json;
+
 class Program
 {
     static void Main()
