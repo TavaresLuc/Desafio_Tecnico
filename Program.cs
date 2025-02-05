@@ -1,54 +1,45 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 class Program
 {
     static void Main()
     {
-        // Parte 1: Cálculo da soma do primeiro código
+        // Execução das funções dos desafios
         CalcularSoma();
-
-        // Parte 2: Verificação de Fibonacci
         VerificarFibonacci();
-
-        //Parte 3: Vetor
         VetorFaturamento();
-
-        //Parte 4: Faturamento por Estado
         FaturamentoUF();
-
-        //Parte 5: Inverter String
         StringInvertida();
     }
 
-    // Questão 1
-
+    // ------------------------------- DESAFIO 1 -------------------------------
     static void CalcularSoma()
     {
-
-        Console.WriteLine($"");
-        Console.WriteLine($"------/------");
-        Console.WriteLine($"DESAFIO 1:");
+        Console.WriteLine("\n------/------");
+        Console.WriteLine("DESAFIO 1:");
 
         int INDICE = 13, SOMA = 0, K = 0;
 
         while (K < INDICE)
         {
-            K = K + 1;
-            SOMA = SOMA + K;
+            K++;
+            SOMA += K;
         }
 
         Console.WriteLine("O valor da variável SOMA é: " + SOMA);
     }
 
+    // ------------------------------- DESAFIO 2 -------------------------------
     static void VerificarFibonacci()
     {
-
-        Console.WriteLine($"");
-        Console.WriteLine($"------/------");
-        Console.WriteLine($"DESAFIO 2:");
+        Console.WriteLine("\n------/------");
+        Console.WriteLine("DESAFIO 2:");
 
         Console.Write("\nDigite um número para verificar se pertence à sequência de Fibonacci: ");
-
         int numero = int.Parse(Console.ReadLine());
 
         if (IsFibonacci(numero))
@@ -60,9 +51,6 @@ class Program
             Console.WriteLine($"O número {numero} NÃO pertence à sequência de Fibonacci.");
         }
     }
-
-
-    // Questão 2
 
     static bool IsFibonacci(int num)
     {
@@ -79,52 +67,70 @@ class Program
     }
 
 
+    // ------------------------------- DESAFIO 3 -------------------------------
 
-    // Questão 3
+
     static void VetorFaturamento()
     {
+        Console.WriteLine("\n------/------");
+        Console.WriteLine("DESAFIO 3:");
 
-        Console.WriteLine($"");
-        Console.WriteLine($"------/------");
-        Console.WriteLine($"DESAFIO 3:");
-        // Lendo o JSON
-        string json = File.ReadAllText("faturamento.json");
+        try
+        {
+            // Lendo o JSON do arquivo
+            string json = File.ReadAllText("faturamento.json");
 
-        // Desserializando os dados do JSON
-        var dados = JsonConvert.DeserializeObject<FaturamentoMensal>(json);
-        double[] faturamentoDiario = dados.Faturamento;
+            // Desserializando diretamente para uma lista de objetos
+            var dados = JsonConvert.DeserializeObject<List<FaturamentoDiario>>(json);
 
-        // Filtrando dias com faturamento > 0 (ignorando feriados e finais de semana)
-        var faturamentoValido = faturamentoDiario.Where(x => x > 0).ToArray();
+            if (dados == null || dados.Count == 0)
+            {
+                Console.WriteLine("Erro: O arquivo JSON está vazio ou não contém dados válidos.");
+                return;
+            }
 
-        // Calculando valores
-        double menorFaturamento = faturamentoValido.Min();
-        double maiorFaturamento = faturamentoValido.Max();
-        double mediaMensal = faturamentoValido.Average();
+            // Filtrando apenas os dias com faturamento > 0 (ignorando feriados e finais de semana)
+            var faturamentoValido = dados.Where(d => d.Valor > 0).ToList();
 
-        // Contando dias com faturamento acima da média
-        int diasAcimaDaMedia = faturamentoValido.Count(x => x > mediaMensal);
+            if (faturamentoValido.Count == 0)
+            {
+                Console.WriteLine("Nenhum dia útil com faturamento encontrado.");
+                return;
+            }
 
-        // Exibindo os resultados
-        Console.WriteLine("\n--- Análise do Faturamento Diário ---");
-        Console.WriteLine($"Menor faturamento: R$ {menorFaturamento}");
-        Console.WriteLine($"Maior faturamento: R$ {maiorFaturamento}");
-        Console.WriteLine($"Dias com faturamento acima da média mensal: {diasAcimaDaMedia}");
+            // Calculando valores
+            double menorFaturamento = faturamentoValido.Min(d => d.Valor);
+            double maiorFaturamento = faturamentoValido.Max(d => d.Valor);
+            double mediaMensal = faturamentoValido.Average(d => d.Valor);
+
+            // Contando dias com faturamento acima da média
+            int diasAcimaDaMedia = faturamentoValido.Count(d => d.Valor > mediaMensal);
+
+            // Exibindo os resultados
+            Console.WriteLine("\n--- Análise do Faturamento Diário ---");
+            Console.WriteLine($"Menor faturamento: R$ {menorFaturamento:F2}");
+            Console.WriteLine($"Maior faturamento: R$ {maiorFaturamento:F2}");
+            Console.WriteLine($"Dias com faturamento acima da média mensal: {diasAcimaDaMedia}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao processar o JSON: {ex.Message}");
+        }
     }
 
-    // Classe para desserializar JSON
-    class FaturamentoMensal
+    // Classe para mapear corretamente os objetos do JSON
+    class FaturamentoDiario
     {
-        public double[] Faturamento { get; set; }
+        public int Dia { get; set; }
+        public double Valor { get; set; }
     }
 
-    // Questão 4
 
+    // ------------------------------- DESAFIO 4 -------------------------------
     static void FaturamentoUF()
     {
-        Console.WriteLine($"");
-        Console.WriteLine($"------/------");
-        Console.WriteLine($"DESAFIO 4:");
+        Console.WriteLine("\n------/------");
+        Console.WriteLine("DESAFIO 4:");
 
         // Faturamento por estado
         double sp = 67836.43;
@@ -151,15 +157,11 @@ class Program
         return (valor / total) * 100;
     }
 
-
-    // Questão 5
-
+    // ------------------------------- DESAFIO 5 -------------------------------
     static void StringInvertida()
     {
-
-        Console.WriteLine($"");
-        Console.WriteLine($"------/------");
-        Console.WriteLine($"DESAFIO 5:");
+        Console.WriteLine("\n------/------");
+        Console.WriteLine("DESAFIO 5:");
 
         // Entrada da string pelo usuário
         Console.Write("Digite uma palavra ou frase para inverter: ");
@@ -187,15 +189,4 @@ class Program
 
         return new string(caracteres);
     }
-
 }
-
-
-
-
-
-
-
-
-
-
